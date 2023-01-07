@@ -14,5 +14,7 @@ https://www.youtube.com/watch?v=oLvmLJkmXuc
 ## Notes
 
 #### Padded convolutions vs valid convolutions
+'valid' padding means no padding
 
-
+'Same' convolution
+- the input height and width is the same after the convolution

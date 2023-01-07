@@ -7,18 +7,17 @@ class DoubleConv(nn.Module):
         super(DoubleConv, self).__init__()
 
         self.conv = nn.Sequential(
-            
-            nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
-            
+
             # Using a bias in the convolution layer will be cancelled by the batch norm
-            nn.BatchNorm2d(out_channels)
-            nn.ReLu(inplace=True)
+            nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
 
-            nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
-            nn.BatchNorm2d(out_channels)
-            nn.ReLu(inplace=True)
+            nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True) 
+
         )
-
 
 
     def forward(self, x):
@@ -76,6 +75,9 @@ class UNET(nn.Module):
             # Grab the 'correct' skip connection
             skip_connection = skip_connections[idx//2]
 
+            if x.shape != skip_connection.shape:
+                x = TF.resize(x, size=skip_connection.shape[2:])
+
             # Concat the skip connection to x
             concat_skip = torch.cat((skip_connection, x), dim=1)
 
@@ -86,9 +88,15 @@ class UNET(nn.Module):
 
 
 
+def test():
+    x = torch.randn((3, 1, 161, 161))
+
+    model = UNET(in_channels=1, out_channels=1)
+    preds = model(x)
+    print(preds.shape)
+    print(x.shape)
+    assert preds.shape == x.shape
 
 
-
-
-            
-
+if __name__ == "__main__":
+    test()
